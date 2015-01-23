@@ -200,4 +200,18 @@ public class Taco {
         this.growthCounter = growthCounter;
     }
 
+    /**
+     * @return the selfHit
+     */
+    public boolean isSelfHit() {
+        for (int i = 1; i < this.body.size(); i++) {
+            if (getHead().equals(body.get(i))) {            
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+
 }
