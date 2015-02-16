@@ -17,6 +17,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import audio.AudioPlayer;
+import images.Animator;
+import images.ImageManager;
 import java.awt.Dimension;
 
 /**
@@ -27,7 +29,7 @@ class TacoTangoEnvironment extends Environment implements GridDrawData, Location
 
     private Grid grid;
     private Taco taco;
-    private Image segmentImage, gameOverScreen;
+    private Image segmentImage, gameOverScreen, startPage;
     private Image flag;
     private Score score;
     private int Level;
@@ -37,13 +39,18 @@ class TacoTangoEnvironment extends Environment implements GridDrawData, Location
     public final int MEDIUM_SPEED = 2;
     public final int HIGHMEDIUM_SPEED = 1;
     public final int HIGH_SPEED = 1 / 8;
+    public static int LEVEL_OVER = 6;
 
     private int moveDelayLimit = SLOW_SPEED;
     private int moveDelayCounter = 0;
 
     private ArrayList<GridObject> gridObjects;
 
-    private GameState gameState = GameState.OVER;
+    private ImageManager imageManager;
+    private Animator animator;
+
+    private GameState gameState = GameState.PLAYING;
+    private ArrayList<String> gameOverAnimationList;
 
     public TacoTangoEnvironment() {
 
@@ -55,12 +62,41 @@ class TacoTangoEnvironment extends Environment implements GridDrawData, Location
         score.setPosition(new Point(10, 10));
 
         flag = ResourceTools.loadImageFromResource("resources/TortillaVeryTransparent.png");
-        gameOverScreen = ResourceTools.loadImageFromResource("resources/GameOver.gif");
-        
+
 //        this.setBackground(ResourceTools.loadImageFromResource("resources/background_mexican.jpg").getScaledInstance(900, 700, Image.SCALE_FAST));
         setLevel(1);
         grid = new Grid(34, 17, 25, 25, new Point(25, 250), Color.BLACK);
 
+        imageManager = new ImageManager();
+        imageManager.addImage("GAMEOVER_01", ResourceTools.loadImageFromResource("resources/game_over_g.jpg"));
+        imageManager.addImage("GAMEOVER_02", ResourceTools.loadImageFromResource("resources/game_over_ga.jpg"));
+        imageManager.addImage("GAMEOVER_03", ResourceTools.loadImageFromResource("resources/game_over_gam.jpg"));
+        imageManager.addImage("GAMEOVER_04", ResourceTools.loadImageFromResource("resources/game_over_game.jpg"));
+        imageManager.addImage("GAMEOVER_05", ResourceTools.loadImageFromResource("resources/game_over_gameo.jpg"));
+        imageManager.addImage("GAMEOVER_06", ResourceTools.loadImageFromResource("resources/game_over_gameov.jpg"));
+        imageManager.addImage("GAMEOVER_07", ResourceTools.loadImageFromResource("resources/game_over_gameove.jpg"));
+        imageManager.addImage("GAMEOVER_08", ResourceTools.loadImageFromResource("resources/game_over_gameover.jpg"));
+        imageManager.addImage("GAMEOVER_09", ResourceTools.loadImageFromResource("resources/game_over_none.jpg"));
+
+        gameOverAnimationList = new ArrayList<>();
+        gameOverAnimationList.add("GAMEOVER_01");
+        gameOverAnimationList.add("GAMEOVER_02");
+        gameOverAnimationList.add("GAMEOVER_03");
+        gameOverAnimationList.add("GAMEOVER_04");
+        gameOverAnimationList.add("GAMEOVER_05");
+        gameOverAnimationList.add("GAMEOVER_06");
+        gameOverAnimationList.add("GAMEOVER_07");
+        gameOverAnimationList.add("GAMEOVER_08");
+        gameOverAnimationList.add("GAMEOVER_09");
+        gameOverAnimationList.add("GAMEOVER_08");
+        gameOverAnimationList.add("GAMEOVER_09");
+        gameOverAnimationList.add("GAMEOVER_08");
+        gameOverAnimationList.add("GAMEOVER_09");
+        gameOverAnimationList.add("GAMEOVER_08");
+
+//            
+        animator = new Animator(imageManager, gameOverAnimationList, 400);
+//      
 //        grid.setPosition(new Point (20, 200));
         taco = new Taco();
         taco.setDirection(Direction.DOWN);
@@ -136,12 +172,12 @@ class TacoTangoEnvironment extends Environment implements GridDrawData, Location
         } else if (e.getKeyCode() == KeyEvent.VK_5) {
             setLevel(5);
 
-        }else if (e.getKeyCode() == KeyEvent.VK_6) {
+        } else if (e.getKeyCode() == KeyEvent.VK_6) {
             setLevel(6);
-            
-    }else if (e.getKeyCode() == KeyEvent.VK_S) {
-//        case : START;
-    }
+
+        } else if (e.getKeyCode() == KeyEvent.VK_S) {
+
+        }
     }
 
     @Override
@@ -160,8 +196,6 @@ class TacoTangoEnvironment extends Environment implements GridDrawData, Location
     public void paintEnvironment(Graphics graphics) {
         switch (gameState) {
             case START:
-                
-                
 
                 break;
 
@@ -191,7 +225,10 @@ class TacoTangoEnvironment extends Environment implements GridDrawData, Location
                     }
                 }
             case OVER:
-                graphics.drawImage(gameOverScreen, 0, 0, this);
+//                graphics.drawImage(gameOverScreen, 0, 0, this);
+                graphics.drawImage(animator.getCurrentImage().getScaledInstance(900, 750, Image.SCALE_FAST), 0, 0, this);
+//                graphics.drawi
+
         }
 
 //        if (score != null) {
@@ -250,7 +287,7 @@ class TacoTangoEnvironment extends Environment implements GridDrawData, Location
     public Point validateLocation(Point point) {
 
         if (taco.isSelfHit()) {
-            taco.setPaused(true);
+            setLevel(LEVEL_OVER);
         }
 
         if (point.x >= this.grid.getColumns()) {
@@ -265,6 +302,7 @@ class TacoTangoEnvironment extends Environment implements GridDrawData, Location
             point.y = this.grid.getRows() - 1;
         }
 
+//        this.setLevel();
         // check if the snake hit a GridObject, then take the appropriate action:
         // Flag = grow snake by 3. American flag = make sound, kill snake.
         // look at all the locations stored in the gridObject ArrayList
@@ -322,12 +360,9 @@ class TacoTangoEnvironment extends Environment implements GridDrawData, Location
                 flag = ResourceTools.loadImageFromResource("resources/MexicoFlagIcon.jpg");
                 moveDelayLimit = HIGH_SPEED;
 
-            
+                this.Level = Level;
+            }
 
-        this.Level = Level;
-    }
-
-}
+        }
     }
 }
-
