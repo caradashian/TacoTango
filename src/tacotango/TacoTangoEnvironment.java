@@ -49,7 +49,7 @@ class TacoTangoEnvironment extends Environment implements GridDrawData, Location
     private ImageManager imageManager;
     private Animator animator;
 
-    private GameState gameState = GameState.PLAYING;
+    private GameState gameState;// = GameState.PLAYING;
     private ArrayList<String> gameOverAnimationList;
 
     public TacoTangoEnvironment() {
@@ -104,13 +104,16 @@ class TacoTangoEnvironment extends Environment implements GridDrawData, Location
         taco.setLocationValidator(this);
 
         ArrayList<Point> body = new ArrayList<>();
+
         body.add(new Point(3, 1));
-        body.add(new Point(3, 2));
-        body.add(new Point(2, 2));
-        body.add(new Point(2, 3));
+//        body.add(new Point(3, 2));
+//        body.add(new Point(2, 2));
+//        body.add(new Point(2, 3));
 
         taco.setGrowthCounter(3);
         taco.setBody(body);
+        taco.setDirection(Direction.RIGHT);
+        taco.setGrowthCounter(5);
 
         gridObjects = new ArrayList<GridObject>();
         gridObjects.add(new GridObject(GridObjectType.FLAG, getRandomPoint()));
@@ -118,6 +121,7 @@ class TacoTangoEnvironment extends Environment implements GridDrawData, Location
         gridObjects.add(new GridObject(GridObjectType.FLAG, getRandomPoint()));
         gridObjects.add(new GridObject(GridObjectType.FLAG, getRandomPoint()));
 
+        gameState = GameState.START;
     }
 
     @Override
@@ -154,7 +158,7 @@ class TacoTangoEnvironment extends Environment implements GridDrawData, Location
         } else if (e.getKeyCode() == KeyEvent.VK_UP) {
             taco.setDirection(Direction.UP);
 
-        } else if (e.getKeyCode() == KeyEvent.VK_P) {
+        } else if (e.getKeyCode() == KeyEvent.VK_O) {
             taco.togglePaused();
         } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
             taco.grow(2);
@@ -175,7 +179,8 @@ class TacoTangoEnvironment extends Environment implements GridDrawData, Location
         } else if (e.getKeyCode() == KeyEvent.VK_6) {
             setLevel(6);
 
-        } else if (e.getKeyCode() == KeyEvent.VK_S) {
+        } else if (e.getKeyCode() == KeyEvent.VK_P) {
+            gameState = GameState.PLAYING;
 
         }
     }
@@ -196,6 +201,7 @@ class TacoTangoEnvironment extends Environment implements GridDrawData, Location
     public void paintEnvironment(Graphics graphics) {
         switch (gameState) {
             case START:
+                graphics.drawImage(ResourceTools.loadImageFromResource("resources/final_start_page.jpg").getScaledInstance(900, 700, Image.SCALE_FAST), 0, 0, this);
 
                 break;
 
@@ -224,6 +230,8 @@ class TacoTangoEnvironment extends Environment implements GridDrawData, Location
                         }
                     }
                 }
+                break;
+
             case OVER:
 //                graphics.drawImage(gameOverScreen, 0, 0, this);
                 graphics.drawImage(animator.getCurrentImage().getScaledInstance(900, 750, Image.SCALE_FAST), 0, 0, this);
@@ -231,30 +239,7 @@ class TacoTangoEnvironment extends Environment implements GridDrawData, Location
 
         }
 
-//        if (score != null) {
-//            score.draw(graphics);
-//        }
-//
-//        if (grid != null) {
-////            grid.paintComponent(graphics);
-//        }
-//
-//        if (taco != null) {
-//            taco.draw(graphics);
-//        }
-//
-//        if (gridObjects != null) {
-//            for (GridObject gridObject : gridObjects) {
-//                if (gridObject.getType() == GridObjectType.FLAG) {
-//                    graphics.drawImage(flag, grid.getCellSystemCoordinate(gridObject.getLocation()).x,
-//                            grid.getCellSystemCoordinate(gridObject.getLocation()).y,
-//                            grid.getCellHeight(), grid.getCellWidth(), this);
-////                    segmentImage = ResourceTools.loadImageFromResource("resources/taco.png");               
-////                    segmentImage(ResourceTools.loadImageFromResource("resources/taco.png"), grid.getCellSystemCoordinate(gridObject.getLocation()), grid.getCellSize());
-//
-//                }
-//
-//            }
+//        
     }
 
     /**
@@ -288,6 +273,7 @@ class TacoTangoEnvironment extends Environment implements GridDrawData, Location
 
         if (taco.isSelfHit()) {
             setLevel(LEVEL_OVER);
+            gameState = GameState.OVER;
         }
 
         if (point.x >= this.grid.getColumns()) {
